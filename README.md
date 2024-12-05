@@ -42,8 +42,8 @@ This project implements a Run-Length Encoding (RLE) compression tool in C. The t
 ### Steps to Clone and Compile
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/rle-compression-tool.git
-   cd rle-compression-tool
+   git clone https://github.com/eslem10/projet-c.git
+   cd projet-c
 
 ## Compile Code
 gcc -o rle_tool rle_tool.c
