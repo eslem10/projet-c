@@ -31,6 +31,34 @@ void decompress(FILE *input, FILE *output) {
     }
 }
 
+bool run_test(FILE *file, int test_case) {
+    char input1[100]  , expected[100], result[100] ;
+
+    // Read input and the expected result
+    if (fscanf(file, "%s %s", &input1, &expected) !=2){
+        if (feof(file)) {
+            // End of file reached, no more test cases
+            return false;
+        }
+        printf("Test case %d: Error reading dataset file\n", test_case);
+        return false;
+    }
+
+    //  our fuctions
+    result1 = compress(input1);
+    result2=decompress(expected);
+        
+
+    // Compare result with expected output
+    if ((result1 == expected) and (result2== input1)) {
+        printf("Test case: Passed \n");
+        return true;
+    } else {
+        printf("Test case : Failed \n", );
+        return false;
+    }
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 4) {
         printf("Usage: %s <mode> <input file> <output file>\n", argv[0]);
@@ -60,5 +88,33 @@ int main(int argc, char *argv[]) {
 
     fclose(inputFile);
     fclose(outputFile);
-    return 0;
+    FILE *file = fopen("dataset.txt", "r");
+    if (file == NULL) {
+        perror("Error opening dataset file");
+        return 1;
+    }
+
+    int test_case = 0;
+    int passed = 0, failed = 0;
+
+    printf("Running tests...\n");
+
+    while (!feof(file)) {
+        test_case++;
+        // Run each test and count passed/failed
+        if (!run_test(file, test_case_num)) {
+            // If run_test returns false due to EOF, exit loop
+            if (feof(file)) break;
+            failed++;
+        } else {
+            passed++;
+        }
+    }
+
+    fclose(file);
+
+    printf("\nTotal tests: %d | Passed: %d | Failed: %d\n", passed + failed, passed, failed);
+
+    return (failed == 0) ? 0 : 1; 
 }
+
