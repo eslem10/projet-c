@@ -20,12 +20,12 @@ jobs:
         run: sudo apt-get install -y gcc # Installs GCC using the system's package manager.
 
       # Step 3: Compile the C program
-      - name: Build the program # Compile the 'sum.c' file into an executable.
+      - name: Build the program # Compile the 'rle_tool.c' file into an executable.
         run: gcc -o sum rle_tool.c # Uses GCC to create an executable named 'sum' from the source code file 'sum.c'.
 
       # Step 4: Run the compiled program
       - name: Run the test # Executes the compiled C program to perform the tests.
-        run: ./ # rle_tool Runs the 'sum' executable, which performs its logic and outputs the results.
+        run: ./ # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
 
       # Step 5: Check for test failures
       - name: Check test result # Fail the job if the test results are not as expected.
