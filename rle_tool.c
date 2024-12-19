@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-
+#include <stdbool.h>
 void compress(FILE *input, FILE *output) {
     char currentChar, prevChar;
     int count = 1;
@@ -35,7 +35,7 @@ bool run_test(FILE *file, int test_case) {
     char input1[100]  , expected[100], result[100] ;
 
     // Read input and the expected result
-    if (fscanf(file, "%s %s", &input1, &expected) !=2){
+    if (fscanf(file, "%s %s", input1, expected) !=2){
         if (feof(file)) {
             // End of file reached, no more test cases
             return false;
@@ -45,18 +45,40 @@ bool run_test(FILE *file, int test_case) {
     }
 
     //  our fuctions
-    result1 = compress(input1);
-    result2=decompress(expected);
-        
+    FILE *tempInput = tmpfile();
+    FILE *tempCompressed = tmpfile();
+    FILE *tempDecompressed = tmpfile();
 
-    // Compare result with expected output
-    if ((result1 == expected) and (result2== input1)) {
-        printf("Test case: Passed \n");
-        return true;
-    } else {
-        printf("Test case : Failed \n", );
+    if (!tempInput || !tempCompressed || !tempDecompressed) {
+        perror("Error creating temporary files");
         return false;
     }
+
+    // Write input1 to tempInput
+    fprintf(tempInput, "%s", input1);
+    rewind(tempInput);
+
+    // Run compression
+    compress(tempInput, tempCompressed);
+    rewind(tempCompressed);
+
+    // Run decompression
+    decompress(tempCompressed, tempDecompressed);
+    rewind(tempDecompressed);
+
+    // Read decompressed result back
+    fscanf(tempDecompressed, "%s", result);
+
+    // Compare result with expected
+    bool passed = (strcmp(result, expected) == 0);
+
+    printf("Test case %d: %s\n", test_case, passed ? "Passed" : "Failed");
+
+    fclose(tempInput);
+    fclose(tempCompressed);
+    fclose(tempDecompressed);
+
+    return passed;
 }
 
 int main(int argc, char *argv[]) {
@@ -102,7 +124,7 @@ int main(int argc, char *argv[]) {
     while (!feof(file)) {
         test_case++;
         // Run each test and count passed/failed
-        if (!run_test(file, test_case_num)) {
+        if (!run_test(file, test_case)) {
             // If run_test returns false due to EOF, exit loop
             if (feof(file)) break;
             failed++;
