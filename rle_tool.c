@@ -187,102 +187,87 @@ int run_tests(const char *test_file, int is_compression) {
     }
 
     char line[MAX_LINE_LENGTH];
+    char input[MAX_LINE_LENGTH], expected[MAX_LINE_LENGTH];
     char temp_input[] = "temp_input.txt";
     char temp_output[] = "temp_output.txt";
-    char temp_expected[] = "temp_expected.txt";
     int test_count = 0;
     int passed = 0;
-    int line_count = 0;
-    int total_lines = 0;
-    
-    while (fgets(line, sizeof(line), fp) && test_count < MAX_TEST_CASES) {
-        if (line[0] == '#') {
-            if (test_count > 0) {
-                line_count = 0;
-            }
-            
-            FILE *temp_in = fopen(temp_input, "w");
-            FILE *temp_exp = fopen(temp_expected, "w");
-            
-            // Count total lines in this test case
-            long pos = ftell(fp);
-            total_lines = 0;
-            while (fgets(line, sizeof(line), fp) && line[0] != '=') {
-                if (line[0] != '#') total_lines++;
-            }
-            fseek(fp, pos, SEEK_SET);
-            
-            // Process test case
-            while (fgets(line, sizeof(line), fp) && line[0] != '=') {
-                if (line[0] == '#') continue;
-                
-                if (line_count < total_lines/2) {
-                    fputs(line, temp_in);
-                } else {
-                    fputs(line, temp_exp);
-                }
-                line_count++;
-            }
-            
-            fclose(temp_in);
-            fclose(temp_exp);
 
-            int success;
-            if (is_compression) {
-                success = compress_file(temp_input, temp_output);
-            } else {
-                success = decompress_file(temp_input, temp_output);
-            }
-
-            if (success > 0) {
-                FILE *out = fopen(temp_output, "r");
-                FILE *exp = fopen(temp_expected, "r");
-                int match = 1;
-
-                while (fgets(line, sizeof(line), out)) {
-                    char expected[MAX_LINE_LENGTH];
-                    if (!fgets(expected, sizeof(expected), exp) || strcmp(line, expected) != 0) {
-                        match = 0;
-                        break;
-                    }
-                }
-
-                fclose(out);
-                fclose(exp);
-
-                if (match) {
-                    passed++;
-                    printf("Test case %d: PASSED\n", test_count + 1);
-                } else {
-                    printf("Test case %d: FAILED\n", test_count + 1);
-                    printf("Expected output:\n");
-                    FILE *exp = fopen(temp_expected, "r");
-                    while (fgets(line, sizeof(line), exp)) {
-                        printf("%s", line);
-                    }
-                    fclose(exp);
-                    
-                    printf("\nActual output:\n");
-                    FILE *out = fopen(temp_output, "r");
-                    while (fgets(line, sizeof(line), out)) {
-                        printf("%s", line);
-                    }
-                    fclose(out);
-                    printf("\n");
-                }
-            }
-            test_count++;
+    while (fgets(line, sizeof(line), fp)) {
+        // Skip empty lines
+        if (line[0] == '\n' || line[0] == '\0') {
+            continue;
         }
+
+        // Parse the input and expected result from the line
+        if (sscanf(line, "%[^,] %[^,]", input, expected) != 2) {
+            printf("Error parsing test case %d: Invalid format\n", test_count + 1);
+            continue;
+        }
+
+        // Write the input to a temporary file
+        FILE *temp_in = fopen(temp_input, "w");
+        if (!temp_in) {
+            printf("Error creating temporary input file\n");
+            fclose(fp);
+            return 0;
+        }
+        fprintf(temp_in, "%s", input);
+        fclose(temp_in);
+
+        // Perform compression or decompression based on the flag
+        int success;
+        if (is_compression) {
+            success = compress_file(temp_input, temp_output);
+        } else {
+            success = decompress_file(temp_input, temp_output);
+        }
+
+        if (success > 0) {
+            // Compare the output with the expected result
+            FILE *out = fopen(temp_output, "r");
+            if (!out) {
+                printf("Error opening temporary output file\n");
+                fclose(fp);
+                return 0;
+            }
+
+            char actual[MAX_LINE_LENGTH];
+            if (!fgets(actual, sizeof(actual), out)) {
+                printf("Error reading output for test case %d\n", test_count + 1);
+                fclose(out);
+                continue;
+            }
+            fclose(out);
+
+            // Remove trailing newline from actual output
+            actual[strcspn(actual, "\n")] = '\0';
+
+            if (strcmp(actual, expected) == 0) {
+                passed++;
+                printf("Test case %d: PASSED\n", test_count + 1);
+            } else {
+                printf("Test case %d: FAILED\n", test_count + 1);
+                printf("Input: %s\n", input);
+                printf("Expected: %s\n", expected);
+                printf("Actual: %s\n", actual);
+            }
+        } else {
+            printf("Test case %d: FAILED\n", test_count + 1);
+            printf("Error during processing\n");
+        }
+
+        test_count++;
     }
 
     fclose(fp);
     remove(temp_input);
     remove(temp_output);
-    remove(temp_expected);
 
     printf("\nTest Results: %d/%d passed\n", passed, test_count);
     return passed == test_count;
 }
+
 
 
 int main(int argc, char *argv[]) {
