@@ -82,7 +82,7 @@ int compress_file(const char *input_filename, const char *output_filename) {
             return 0;
         }
 
-        if (current_char == prev_char && current_char != '\n') {
+        if (current_char == prev_char && current_char != ',') {
             count++;
         } else {
             if (prev_char != '\n') {
@@ -93,7 +93,7 @@ int compress_file(const char *input_filename, const char *output_filename) {
                 compressed_length += 2;
                 first_in_line = 0;
             }
-            if (current_char == '\n') {
+            if (current_char == ',') {
                 fprintf(output_file, "\n");
                 first_in_line = 1;
             }
