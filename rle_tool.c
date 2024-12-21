@@ -384,18 +384,18 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1], "--run-test") == 0){
         if (argc == 4)
         {
-            if (strcmp(argv[1], "--compress") == 0)
+            if (strcmp(argv[2], "--compress") == 0)
             {
-                return run_tests(argv[2], 1) ? 0 : 1;
+                return run_tests(argv[3], 1) ? 0 : 1;
             }
-            else if (strcmp(argv[1], "--decompress") == 0)
+            else if (strcmp(argv[2], "--decompress") == 0)
             {
-                return run_tests(argv[2], 0) ? 0 : 1;
+                return run_tests(argv[3], 0) ? 0 : 1;
             }
             else
             {
                 printf("Usage: %s <mode> input_file output_file\n", argv[0]);
-                printf("Modes: -compress, -decompress, -test-compress, -test-decompress\n");
+                printf("Modes: --compress, --decompress \n");
                 return 1;
             }
         }
