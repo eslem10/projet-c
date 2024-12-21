@@ -24,8 +24,21 @@ jobs:
         run: gcc -o rle_tool rle_tool.c # Uses GCC to create an executable named 'sum' from the source code file 'sum.c'.
 
       # Step 4: Run the compiled program
+      - name: Run the code # Executes the compiled C program to perform the tests.
+        run: ./rle_tool --run-code --compress dataset.txt output.txt
+      # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
+       # Step 4: Run the compiled program
+      - name: Run the code # Executes the compiled C program to perform the tests.
+        run: ./rle_tool --run-code --decompress dataset.txt output.txt
+        # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
+
+      # Step 4: Run the compiled program
       - name: Run the test # Executes the compiled C program to perform the tests.
-        run: ./rle_tool -testcompress dataset.txt output_compressed.txt
+        run: ./rle_tool --run-test --compress dataset.txt
+      
+      # Step 4: Run the compiled program
+      - name: Run the test # Executes the compiled C program to perform the tests.
+        run: ./rle_tool --run-test --decompress dataset.txt
  # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
 
       # Step 5: Check for test failures
