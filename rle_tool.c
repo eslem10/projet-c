@@ -344,7 +344,7 @@ int run_tests(const char *test_file, int is_compression)
 int main(int argc, char *argv[])
 {
 
-    if (strcmp(argc[1], "--run-code") == 0)
+    if (strcmp(argv[1], "--run-code") == 0)
     {
         if (argc == 5)
         {
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
             printf("Invalid arguments for run_code");
         }
     }
-    else if (strcmp(argc[1], "--run-test") == 0){
+    else if (strcmp(argv[1], "--run-test") == 0){
         if (argc == 4)
         {
             if (strcmp(argv[1], "--compress") == 0)
