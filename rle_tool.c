@@ -185,7 +185,7 @@ int run_tests(const char *test_file, int is_compression) {
         printf("Error: Cannot open test file\n");
         return 0;
     }
-
+    int MAX_LINE_LENGTH=1023;
     char line[MAX_LINE_LENGTH];
     char input[MAX_LINE_LENGTH], expected[MAX_LINE_LENGTH];
     char temp_input[] = "temp_input.txt";
