@@ -13,31 +13,48 @@ int run_tests(const char *test_file, int is_compression);
 // Validation function
 int validate_line(const char *line) {
     const char *ptr = line;
-    
+
     while (*ptr) {
+        // Skip leading spaces
         while (*ptr == ' ') ptr++;
         if (!*ptr || *ptr == '\n') break;
-        
-        if (!isprint(*ptr)) return 0;
+
+        // Check for a printable character
+        if (!isprint(*ptr)) {
+            printf("Error: Non-printable character found\n");
+            return 0;
+        }
         ptr++;
-        
-        if (*ptr != ' ') return 0;
+
+        // Expect a space
+        if (*ptr != ' ') {
+            printf("Error: Missing space after character\n");
+            return 0;
+        }
         ptr++;
-        
-        // Modified to handle multi-digit numbers
-        if (!isdigit(*ptr)) return 0;
+
+        // Check for a digit (multi-digit numbers allowed)
+        if (!isdigit(*ptr)) {
+            printf("Error: Missing number after character\n");
+            return 0;
+        }
         while (isdigit(*ptr)) ptr++;
-        
-        if (*ptr && *ptr != ' ' && *ptr != '\n') return 0;
+
+        // Allow only spaces or newlines after a number
+        if (*ptr && *ptr != ' ' && *ptr != '\n') {
+            printf("Error: Unexpected character found after number\n");
+            return 0;
+        }
     }
-    return 1;
+
+    return 1; // Valid line
 }
 
 // Compression function
 int compress_file(const char *input_filename, const char *output_filename) {
     FILE *input_file = fopen(input_filename, "r");
     if (input_file == NULL) {
-        printf("Error opening input file\n");
+        printf("Error: Unable to open input file\n");
         return 0;
     }
 
@@ -51,62 +68,68 @@ int compress_file(const char *input_filename, const char *output_filename) {
 
     FILE *output_file = fopen(output_filename, "w");
     if (output_file == NULL) {
-        printf("Error opening output file\n");
+        printf("Error: Unable to open output file\n");
         fclose(input_file);
         return 0;
     }
 
-    char current_char, prev_char;
+    char current_char, prev_char = '\0';
     int count = 1;
-    int first_in_line = 1;
     int compressed_length = 0;
 
-    prev_char = fgetc(input_file);
-    if (prev_char == EOF) {
+    // Read the first character
+    if ((prev_char = fgetc(input_file)) == EOF || prev_char == '\n') {
+        fclose(input_file);
+        fclose(output_file);
+        return 0; // Nothing to compress
+    }
+
+    if (prev_char == ' ') {
+        printf("Error: Input contains invalid spaces\n");
         fclose(input_file);
         fclose(output_file);
         return 0;
     }
-    if (prev_char == ' ') {
-        printf("Error: Input contains spaces\n");
-        fclose(input_file);
-        fclose(output_file);
-        return 0;
-    } while ((current_char = fgetc(input_file)) != EOF) {
+
+    while ((current_char = fgetc(input_file)) != EOF) {
+        // Validate input (no spaces in the middle of the line)
         if (current_char == ' ') {
-            printf("Error: Input contains spaces\n");
+            printf("Error: Input contains invalid spaces\n");
             fclose(input_file);
             fclose(output_file);
             return 0;
         }
 
-
-        if (current_char == prev_char && current_char != ',') {
+        if (current_char == prev_char && current_char != '\n') {
             count++;
         } else {
+            // Write compressed data for the previous character
             if (prev_char != '\n') {
-                if (!first_in_line) {
+                if (compressed_length > 0) {
                     fprintf(output_file, " ");
                 }
                 fprintf(output_file, "%c %d", prev_char, count);
-                compressed_length += 2;
-                first_in_line = 0;
+                compressed_length += 2 + (count > 9 ? (count > 99 ? 3 : 2) : 1);
             }
-            if (current_char == ',') {
+
+            // Handle newlines
+            if (current_char == '\n') {
                 fprintf(output_file, "\n");
-                first_in_line = 1;
+                compressed_length++;
             }
-            count = 1;
+
             prev_char = current_char;
+            count = 1;
         }
     }
 
-    if (prev_char != EOF && prev_char != '\n') {
-        if (!first_in_line) {
+    // Write the last character
+    if (prev_char != '\n') {
+        if (compressed_length > 0) {
             fprintf(output_file, " ");
         }
         fprintf(output_file, "%c %d", prev_char, count);
-        compressed_length += 2;
+        compressed_length += 2 + (count > 9 ? (count > 99 ? 3 : 2) : 1);
     }
 
     fclose(input_file);
@@ -114,9 +137,10 @@ int compress_file(const char *input_filename, const char *output_filename) {
     return compressed_length;
 }
 
+
 // Decompression function with improved line handling
 int decompress_file(const char *input_filename, const char *output_filename) {
-    FILE *input_file = fopen(input_filename, "r");
+    FILE *input_file = fopen(input_filename, "rb");
     if (input_file == NULL) {
         printf("Error opening input file\n");
         return 0;
@@ -130,7 +154,7 @@ int decompress_file(const char *input_filename, const char *output_filename) {
     }
     rewind(input_file);
 
-    FILE *output_file = fopen(output_filename, "w");
+    FILE *output_file = fopen(output_filename, "wb");
     if (output_file == NULL) {
         printf("Error opening output file\n");
         fclose(input_file);
@@ -160,12 +184,12 @@ int decompress_file(const char *input_filename, const char *output_filename) {
                 fputc(current_char, output_file);
                 decompressed_length++;
             }
-            
-            ptr += 2;
-            while (*ptr && isdigit(*ptr)) ptr++;
-            while (*ptr && *ptr == ' ') ptr++;
+
+            while (*ptr && (isdigit(*ptr) || *ptr == ' ')) {
+                ptr++;
+            }
         }
-        
+
         if (!is_empty_line || !last_char_newline) {
             fputc('\n', output_file);
             last_char_newline = 1;
@@ -184,7 +208,7 @@ int run_tests(const char *test_file, int is_compression) {
         printf("Error: Cannot open test file\n");
         return 0;
     }
-    int MAX_LINE_LENGTH=1023;
+    int MAX_LINE_LENGTH = 1023;
     char line[MAX_LINE_LENGTH];
     char input[MAX_LINE_LENGTH], expected[MAX_LINE_LENGTH];
     char temp_input[] = "temp_input.txt";
@@ -193,8 +217,8 @@ int run_tests(const char *test_file, int is_compression) {
     int passed = 0;
 
     while (fgets(line, sizeof(line), fp)) {
-        // Skip empty lines
-        if (line[0] == '\n' || line[0] == '\0') {
+        // Skip empty or whitespace-only lines
+        if (line[0] == '\0' || strspn(line, " \t\n") == strlen(line)) {
             continue;
         }
 
@@ -266,6 +290,7 @@ int run_tests(const char *test_file, int is_compression) {
     printf("\nTest Results: %d/%d passed\n", passed, test_count);
     return passed == test_count;
 }
+
 
 
 
