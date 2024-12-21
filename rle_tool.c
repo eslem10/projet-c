@@ -227,7 +227,7 @@ int run_tests(const char *test_file, int is_compression) {
             printf("Error parsing test case %d: Invalid format\n", test_count + 1);
             continue;
         }
-
+        memmove(expected, expected + 1, strlen(expected));
         // Write the input to a temporary file
         FILE *temp_in = fopen(temp_input, "w");
         if (!temp_in) {
@@ -295,7 +295,6 @@ int run_tests(const char *test_file, int is_compression) {
 
 
 int main(int argc, char *argv[]) {
-    printf(argv[1]);
     if (argc == 4) {
         if (strcmp(argv[1], "-testcompress") == 0) {
             return run_tests(argv[2], 1) ? 0 : 1;
