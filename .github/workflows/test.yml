@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test: # The name of the job.
-    runs-on: ubuntu-latest # Specifies the virtual machine environment for the job.
+    runs-on: ubuntu-latest # Specifies the virtual machine environment for the job
 
     steps:
       # Step 1: Checkout the repository code
