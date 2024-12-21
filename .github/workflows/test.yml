@@ -25,7 +25,8 @@ jobs:
 
       # Step 4: Run the compiled program
       - name: Run the test # Executes the compiled C program to perform the tests.
-        run: ./rle_tool # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
+        run: ./rle_tool -compress input.txt output_compressed.txt
+ # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
 
       # Step 5: Check for test failures
       - name: Check test result # Fail the job if the test results are not as expected.
