@@ -200,7 +200,7 @@ int run_tests(const char *test_file, int is_compression) {
         }
 
         // Parse the input and expected result from the line
-        if (sscanf(line, "%[^,] %[^,]", input, expected) != 2) {
+        if (sscanf(line, "%[^,] %[^\n]", input, expected) != 2) {
             printf("Error parsing test case %d: Invalid format\n", test_count + 1);
             continue;
         }
