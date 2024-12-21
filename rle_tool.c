@@ -72,9 +72,14 @@ int compress_file(const char *input_filename, const char *output_filename) {
         fclose(input_file);
         fclose(output_file);
         return 0;
-    }
+    } while ((current_char = fgetc(input_file)) != EOF) {
+        if (current_char == ' ') {
+            printf("Error: Input contains spaces\n");
+            fclose(input_file);
+            fclose(output_file);
+            return 0;
+        }
 
-   
 
         if (current_char == prev_char && current_char != ',') {
             count++;
