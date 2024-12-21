@@ -381,15 +381,14 @@ int main(int argc, char *argv[])
             printf("Invalid arguments for run_code");
         }
     }
-    elif (strcmp(argc[1], "--run-test") == 0)
-    {
+    else if (strcmp(argc[1], "--run-test") == 0){
         if (argc == 4)
         {
             if (strcmp(argv[1], "--compress") == 0)
             {
                 return run_tests(argv[2], 1) ? 0 : 1;
             }
-            elif (strcmp(argv[1], "--decompress") == 0)
+            else if (strcmp(argv[1], "--decompress") == 0)
             {
                 return run_tests(argv[2], 0) ? 0 : 1;
             }
