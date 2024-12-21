@@ -411,5 +411,5 @@ int main(int argc, char *argv[])
         printf("Invalid arguments for run_code");
         return 1;
     }
-    return 0
+    return 0;
 }
