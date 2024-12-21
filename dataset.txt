@@ -1,11 +1,11 @@
-aaabbbbcc,a3b4c2
-suuupppcoommmm,s1u3p3c1o2m4
-xxxxyyyzzzzz,x4y3z5
-azzzzee,a1z4e2
-hhhhhhhh444,h843
-whaaaaatt,w1h1a5t2
-yyyeessssss,y3e2s6
-hhhhiiii,h4i4
-pccccccccc,p1c9
-teeeeesssst,t1e5s4t1
+aaabbbbcc,a 3 b 4 c 2
+suuupppcoommmm,s 1 u 3 p 3 c 1 o 2 m 4
+xxxxyyyzzzzz,x 4 y 3 z 5
+azzzzee,a 1 z 4 e 2
+hhhhhhhh444,h 8 4 3
+whaaaaatt,w 1 h 1 a 5 t 2
+yyyeessssss,y 3 e 2 s 6
+hhhhiiii,h 4 i 4
+pccccccccc,p 1 c 9
+teeeeesssst,t 1 e 5 s 4 t 1
   
