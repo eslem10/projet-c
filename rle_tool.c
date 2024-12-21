@@ -297,10 +297,10 @@ int run_tests(const char *test_file, int is_compression) {
 int main(int argc, char *argv[]) {
     printf(argv[1]);
     if (argc == 3) {
-        if (strcmp(argv[1], "-test-compress") == 0) {
+        if (strcmp(argv[1], "-testcompress") == 0) {
             return run_tests(argv[2], 1) ? 0 : 1;
         }
-        if (strcmp(argv[1], "-test-decompress") == 0) {
+        if (strcmp(argv[1], "-testdecompress") == 0) {
             return run_tests(argv[2], 0) ? 0 : 1;
         }
     }
