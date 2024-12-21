@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
+zeineb 
 
 // Function declarations
 int compress_file(const char *input_filename, const char *output_filename);
