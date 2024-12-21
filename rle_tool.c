@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
                 else
                     printf("Error in compression process.\n");
             }
-            else if (strcmp(argv[2], "-decompress") == 0)
+            else if (strcmp(argv[2], "--decompress") == 0)
             {
                 int decompressed_length = decompress_file(argv[3], argv[4]);
                 if (decompressed_length > 0)
