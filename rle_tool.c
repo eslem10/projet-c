@@ -255,20 +255,18 @@ int run_tests(const char *test_file, int is_compression)
 
     while (fgets(line, sizeof(line), fp))
     {
-        // Skip empty or whitespace-only lines
         if (line[0] == '\0' || strspn(line, " \t\n") == strlen(line))
         {
             continue;
         }
 
-        // Parse the input and expected result from the line
         if (sscanf(line, "%[^,] %[^\n]", input, expected) != 2)
         {
             printf("Error parsing test case %d: Invalid format\n", test_count + 1);
             continue;
         }
         memmove(expected, expected + 1, strlen(expected));
-        // Write the input to a temporary file
+
         FILE *temp_in1 = fopen(temp_input1, "w");
         if (!temp_in1)
         {
@@ -278,6 +276,7 @@ int run_tests(const char *test_file, int is_compression)
         }
         fprintf(temp_in1, "%s", input);
         fclose(temp_in1);
+
         FILE *temp_in2 = fopen(temp_input2, "w");
         if (!temp_in2)
         {
@@ -288,20 +287,18 @@ int run_tests(const char *test_file, int is_compression)
         fprintf(temp_in2, "%s", expected);
         fclose(temp_in2);
 
-        // Perform compression or decompression based on the flag
         int success;
         if (is_compression)
         {
-            success = compress_file(temp_in1, temp_out1);
+            success = compress_file(temp_input1, temp_out1);
         }
         else
         {
-            success = decompress_file(temp_in2, temp_out2);
+            success = decompress_file(temp_input2, temp_out2);
         }
 
         if (success > 0)
         {
-            // Compare the output1 with the expected result
             FILE *out1 = fopen(temp_out1, "r");
             if (!out1)
             {
@@ -318,8 +315,6 @@ int run_tests(const char *test_file, int is_compression)
                 continue;
             }
             fclose(out1);
-
-            // Remove trailing newline from actual output
             actual1[strcspn(actual1, "\n")] = '\0';
 
             if (strcmp(actual1, expected) == 0)
@@ -334,7 +329,7 @@ int run_tests(const char *test_file, int is_compression)
                 printf("Expected: %s\n", expected);
                 printf("Actual: %s\n", actual1);
             }
-            // Compare the output2 with the input 
+
             FILE *out2 = fopen(temp_out2, "r");
             if (!out2)
             {
@@ -351,8 +346,6 @@ int run_tests(const char *test_file, int is_compression)
                 continue;
             }
             fclose(out2);
-
-            // Remove trailing newline from actual output
             actual2[strcspn(actual2, "\n")] = '\0';
 
             if (strcmp(actual2, input) == 0)
@@ -367,24 +360,24 @@ int run_tests(const char *test_file, int is_compression)
                 printf("Expected: %s\n", expected);
                 printf("Actual: %s\n", actual2);
             }
-      }else
-      {
+        }
+        else
+        {
             printf("Test case %d: FAILED\n", test_count + 1);
             printf("Error during processing\n");
-      }
+        }
 
         test_count++;
-        
-  }
+    }
 
-  fclose(fp);
-  remove(temp_input1);
-  remove(temp_input2);
-  remove(temp_output1);
-  remove(temp_output2);
+    fclose(fp);
+    remove(temp_input1);
+    remove(temp_input2);
+    remove(temp_out1);
+    remove(temp_out2);
 
-  printf("\nTest Results: %d/%d passed\n", passed, test_count);
-  return passed == test_count;
+    printf("\nTest Results: %d/%d passed\n", passed, test_count);
+    return passed == test_count;
 }
 
 int main(int argc, char *argv[])
