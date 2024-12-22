@@ -302,10 +302,10 @@ int run_tests(const char *test_file, int is_compression)
         if (success > 0)
         {
             // Compare the output1 with the expected result
-            FILE *out1 = fopen(temp_output1, "r");
+            FILE *out1 = fopen(temp_out1, "r");
             if (!out1)
             {
-                printf("Error opening temporary output1 file\n");
+                printf("Error opening temporary out1 file\n");
                 fclose(fp);
                 return 0;
             }
@@ -335,10 +335,10 @@ int run_tests(const char *test_file, int is_compression)
                 printf("Actual: %s\n", actual1);
             }
             // Compare the output2 with the input 
-            FILE *out2 = fopen(temp_output2, "r");
+            FILE *out2 = fopen(temp_out2, "r");
             if (!out2)
             {
-                printf("Error opening temporary output2 file\n");
+                printf("Error opening temporary out2 file\n");
                 fclose(fp);
                 return 0;
             }
