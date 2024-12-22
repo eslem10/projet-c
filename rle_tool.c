@@ -164,10 +164,10 @@ int compress_file(const char *input_filename, const char *output_filename)
 // Decompression function with improved line handling
 int decompress_file(const char *input_filename, const char *output_filename)
 {
-    FILE *input_file = fopen(input_filename, "rb");
+    FILE *input_file = fopen(input_filename, "r");
     if (input_file == NULL)
     {
-        printf("Error opening input file\n");
+        printf("Error: Unable to open input file\n");
         return 0;
     }
 
@@ -180,52 +180,43 @@ int decompress_file(const char *input_filename, const char *output_filename)
     }
     rewind(input_file);
 
-    FILE *output_file = fopen(output_filename, "wb");
+    FILE *output_file = fopen(output_filename, "w");
     if (output_file == NULL)
     {
-        printf("Error opening output file\n");
+        printf("Error: Unable to open output file\n");
         fclose(input_file);
         return 0;
     }
 
     char line[1024];
-    char current_char;
-    int count;
     int decompressed_length = 0;
-    int last_char_newline = 1;
 
     while (fgets(line, sizeof(line), input_file))
     {
-        if (!validate_line(line))
-        {
-            printf("Invalid format in compressed file\n");
-            fclose(input_file);
-            fclose(output_file);
-            return 0;
-        }
-
+        char current_char;
+        int count;
         char *ptr = line;
-        int is_empty_line = 1;
+        while (*ptr == ' ') 
+            ptr++;
 
-        while (*ptr && sscanf(ptr, " %c %d", &current_char, &count) == 2)
+        while (*ptr != '\0' && sscanf(ptr, "%c %d", &current_char, &count) == 2)
         {
-            is_empty_line = 0;
             for (int i = 0; i < count; i++)
             {
                 fputc(current_char, output_file);
                 decompressed_length++;
             }
 
-            while (*ptr && (isdigit(*ptr) || *ptr == ' '))
-            {
+            while (*ptr != '\0' && *ptr != ' ' && *ptr != '\n')
                 ptr++;
-            }
+            while (*ptr == ' ')
+                ptr++;
         }
 
-        if (!is_empty_line || !last_char_newline)
+        // If the line ends without a newline character, add one
+        if (ptr != line && ptr[strlen(ptr) - 1] != '\n')
         {
             fputc('\n', output_file);
-            last_char_newline = 1;
         }
     }
 
