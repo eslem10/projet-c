@@ -8,41 +8,38 @@ on:
 
 jobs:
   build-and-test: # The name of the job.
-    runs-on: ubuntu-latest # Specifies the virtual machine environment for the job
+    runs-on: ubuntu-latest # Specifies the virtual machine environment for the job.
 
     steps:
       # Step 1: Checkout the repository code
-      - name: Checkout code # Descriptive name for the step.
-        uses: actions/checkout@v3 # Uses a prebuilt GitHub Action to clone the repo into the VM.
+      - name: Checkout code # This step uses a prebuilt GitHub Action to clone the repository into the VM.
+        uses: actions/checkout@v3 # Uses the 'checkout' action to get the code.
 
       # Step 2: Install the GCC compiler
-      - name: Install GCC # Install the GNU Compiler Collection required for building C programs.
+      - name: Install GCC # Install the GNU Compiler Collection (GCC) needed for compiling C programs.
         run: sudo apt-get install -y gcc # Installs GCC using the system's package manager.
 
       # Step 3: Compile the C program
-      - name: Build the program # Compile the 'rle_tool.c' file into an executable.
-        run: gcc -o rle_tool rle_tool.c # Uses GCC to create an executable named 'rle_tool' from the source code file 'rle_tool.c'.
+      - name: Build the program # Compile the 'rle_tool.c' file into an executable named 'rle_tool'.
+        run: gcc -o rle_tool rle_tool.c # Uses GCC to compile 'rle_tool.c' into the 'rle_tool' executable.
 
-      # Step 4: Run the code compress mode
-      - name: Run the code 
-        run: ./rle_tool --run-code --compress dataset.txt output.txt
-      
-      
-       # Step 5: Run the code decompress mode
-      - name: Run the code 
-        run: ./rle_tool --run-code --decompress dataset.txt output.txt
-        
+      # Step 4: Run the program in compression mode
+      - name: Run the code in compression mode # Runs the 'rle_tool' program to compress the file.
+        run: ./rle_tool --run-code --compress file_to_compress.txt output_compressed.txt
 
-      # Step 6: Run the test compress mode
-      - name: Run the test 
+      # Step 5: Run the program in decompression mode
+      - name: Run the code in decompression mode # Runs the 'rle_tool' program to decompress the file.
+        run: ./rle_tool --run-code --decompress file_to_decompress.txt output_decompressed.txt
+
+      # Step 6: Run the test for compression mode
+      - name: Run the test in compression mode # Runs the tests for the compression functionality.
         run: ./rle_tool --run-test --compress dataset.txt
-      
-      # Step 7: Run the test decompress mode
-      - name: Run the test
+
+      # Step 7: Run the test for decompression mode
+      - name: Run the test in decompression mode # Runs the tests for the decompression functionality.
         run: ./rle_tool --run-test --decompress dataset.txt
 
-
       # Step 8: Check for test failures
-      - name: Check test result # Fail the job if the test results are not as expected.
-        if: failure() # This step runs only if the previous step (Run the test) fails.
+      - name: Check test result # Fails the job if the tests do not pass as expected.
+        if: failure() # This step runs only if the previous step (test execution) fails.
         run: exit 1 # Explicitly fails the job by exiting with a non-zero status code.
