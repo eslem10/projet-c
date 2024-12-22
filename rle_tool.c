@@ -246,8 +246,10 @@ int run_tests(const char *test_file, int is_compression)
     int MAX_LINE_LENGTH = 1023;
     char line[MAX_LINE_LENGTH];
     char input[MAX_LINE_LENGTH], expected[MAX_LINE_LENGTH];
-    char temp_input[] = "temp_input.txt";
-    char temp_output[] = "temp_output.txt";
+    char temp_input1[] = "temp_input.txt";
+    char temp_input2[] = "temp_input.txt";
+    char temp_output1[] = "temp_output.txt";
+    char temp_output2[] = "temp_output.txt";
     int test_count = 0;
     int passed = 0;
 
@@ -267,43 +269,52 @@ int run_tests(const char *test_file, int is_compression)
         }
         memmove(expected, expected + 1, strlen(expected));
         // Write the input to a temporary file
-        FILE *temp_in = fopen(temp_input, "w");
-        if (!temp_in)
+        FILE *temp_in1 = fopen(temp_input1, "w");
+        if (!temp_in1)
         {
             printf("Error creating temporary input file\n");
             fclose(fp);
             return 0;
         }
-        fprintf(temp_in, "%s", input);
-        fclose(temp_in);
+        fprintf(temp_in1, "%s", input);
+        fclose(temp_in1);
+        FILE *temp_in2 = fopen(temp_input2, "w");
+        if (!temp_in2)
+        {
+            printf("Error creating temporary input file\n");
+            fclose(fp);
+            return 0;
+        }
+        fprintf(temp_in2, "%s", expected);
+        fclose(temp_in2);
 
         // Perform compression or decompression based on the flag
         int success;
         if (is_compression)
         {
-            success = compress_file(temp_input, temp_output);
+            success = compress_file(temp_in1, temp_output1);
         }
         else
         {
-            success = decompress_file(temp_input, temp_output);
+            success = decompress_file(temp_in2, temp_out2);
         }
 
         if (success > 0)
         {
-            // Compare the output with the expected result
-            FILE *out = fopen(temp_output, "r");
-            if (!out)
+            // Compare the output1 with the expected result
+            FILE *out1 = fopen(temp_output1, "r");
+            if (!out1)
             {
-                printf("Error opening temporary output file\n");
+                printf("Error opening temporary output1 file\n");
                 fclose(fp);
                 return 0;
             }
 
             char actual[MAX_LINE_LENGTH];
-            if (!fgets(actual, sizeof(actual), out))
+            if (!fgets(actual, sizeof(actual), out1))
             {
                 printf("Error reading output for test case %d\n", test_count + 1);
-                fclose(out);
+                fclose(out1);
                 continue;
             }
             fclose(out);
@@ -331,11 +342,55 @@ int run_tests(const char *test_file, int is_compression)
         }
 
         test_count++;
+        
+            // Compare the output2 with the expected result
+        FILE *out2 = fopen(temp_output2, "r");
+        if (!out2)
+        {
+                printf("Error opening temporary output2 file\n");
+                fclose(fp);
+                return 0;
+        }
+
+        char actual[MAX_LINE_LENGTH];
+        if (!fgets(actual, sizeof(actual), out2))
+        {
+                printf("Error reading output for test case %d\n", test_count + 1);
+                fclose(out2);
+                continue;
+        }
+            fclose(out);
+
+            // Remove trailing newline from actual output
+            actual[strcspn(actual, "\n")] = '\0';
+
+            if (strcmp(actual, input) == 0)
+            {
+                passed++;
+                printf("Test case %d: PASSED\n", test_count + 1);
+            }
+            else
+            {
+                printf("Test case %d: FAILED\n", test_count + 1);
+                printf("Input: %s\n", input);
+                printf("Expected: %s\n", expected);
+                printf("Actual: %s\n", actual);
+            }
+        }
+        else
+        {
+            printf("Test case %d: FAILED\n", test_count + 1);
+            printf("Error during processing\n");
+        }
+
+        test_count++;
     }
 
     fclose(fp);
-    remove(temp_input);
-    remove(temp_output);
+    remove(temp_input1);
+    remove(temp_input2);
+    remove(temp_output1);
+    remove(temp_output2);
 
     printf("\nTest Results: %d/%d passed\n", passed, test_count);
     return passed == test_count;
