@@ -246,10 +246,10 @@ int run_tests(const char *test_file, int is_compression)
     int MAX_LINE_LENGTH = 1023;
     char line[MAX_LINE_LENGTH];
     char input[MAX_LINE_LENGTH], expected[MAX_LINE_LENGTH];
-    char temp_input1[] = "temp_input.txt";
-    char temp_input2[] = "temp_input.txt";
-    char temp_output1[] = "temp_output.txt";
-    char temp_output2[] = "temp_output.txt";
+    char temp_input1[] = "temp_input1.txt";
+    char temp_input2[] = "temp_input2.txt";
+    char temp_output1[] = "temp_output1.txt";
+    char temp_output2[] = "temp_output2.txt";
     int test_count = 0;
     int passed = 0;
 
@@ -292,7 +292,7 @@ int run_tests(const char *test_file, int is_compression)
         int success;
         if (is_compression)
         {
-            success = compress_file(temp_in1, temp_output1);
+            success = compress_file(temp_in1, temp_out1);
         }
         else
         {
@@ -317,7 +317,7 @@ int run_tests(const char *test_file, int is_compression)
                 fclose(out1);
                 continue;
             }
-            fclose(out);
+            fclose(out1);
 
             // Remove trailing newline from actual output
             actual[strcspn(actual, "\n")] = '\0';
@@ -334,32 +334,23 @@ int run_tests(const char *test_file, int is_compression)
                 printf("Expected: %s\n", expected);
                 printf("Actual: %s\n", actual);
             }
-        }
-        else
-        {
-            printf("Test case %d: FAILED\n", test_count + 1);
-            printf("Error during processing\n");
-        }
-
-        test_count++;
-        
-            // Compare the output2 with the expected result
-        FILE *out2 = fopen(temp_output2, "r");
-        if (!out2)
-        {
+            // Compare the output2 with the input 
+            FILE *out2 = fopen(temp_output2, "r");
+            if (!out2)
+            {
                 printf("Error opening temporary output2 file\n");
                 fclose(fp);
                 return 0;
-        }
+            }
 
-        char actual[MAX_LINE_LENGTH];
-        if (!fgets(actual, sizeof(actual), out2))
-        {
+            char actual[MAX_LINE_LENGTH];
+            if (!fgets(actual, sizeof(actual), out2))
+            {
                 printf("Error reading output for test case %d\n", test_count + 1);
                 fclose(out2);
                 continue;
-        }
-            fclose(out);
+            }
+            fclose(out2);
 
             // Remove trailing newline from actual output
             actual[strcspn(actual, "\n")] = '\0';
@@ -376,24 +367,24 @@ int run_tests(const char *test_file, int is_compression)
                 printf("Expected: %s\n", expected);
                 printf("Actual: %s\n", actual);
             }
-        }
-        else
-        {
+      }else
+      {
             printf("Test case %d: FAILED\n", test_count + 1);
             printf("Error during processing\n");
-        }
+      }
 
         test_count++;
-    }
+        
+  }
 
-    fclose(fp);
-    remove(temp_input1);
-    remove(temp_input2);
-    remove(temp_output1);
-    remove(temp_output2);
+  fclose(fp);
+  remove(temp_input1);
+  remove(temp_input2);
+  remove(temp_output1);
+  remove(temp_output2);
 
-    printf("\nTest Results: %d/%d passed\n", passed, test_count);
-    return passed == test_count;
+  printf("\nTest Results: %d/%d passed\n", passed, test_count);
+  return passed == test_count;
 }
 
 int main(int argc, char *argv[])
