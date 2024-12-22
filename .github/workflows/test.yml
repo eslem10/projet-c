@@ -21,27 +21,28 @@ jobs:
 
       # Step 3: Compile the C program
       - name: Build the program # Compile the 'rle_tool.c' file into an executable.
-        run: gcc -o rle_tool rle_tool.c # Uses GCC to create an executable named 'sum' from the source code file 'sum.c'.
+        run: gcc -o rle_tool rle_tool.c # Uses GCC to create an executable named 'rle_tool' from the source code file 'rle_tool.c'.
 
-      # Step 4: Run the compiled program
-      - name: Run the code # Executes the compiled C program to perform the tests.
+      # Step 4: Run the code compress mode
+      - name: Run the code 
         run: ./rle_tool --run-code --compress dataset.txt output.txt
-      # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
-       # Step 4: Run the compiled program
-      - name: Run the code # Executes the compiled C program to perform the tests.
+      
+      
+       # Step 5: Run the code decompress mode
+      - name: Run the code 
         run: ./rle_tool --run-code --decompress dataset.txt output.txt
-        # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
+        
 
-      # Step 4: Run the compiled program
-      - name: Run the test # Executes the compiled C program to perform the tests.
+      # Step 6: Run the test compress mode
+      - name: Run the test 
         run: ./rle_tool --run-test --compress dataset.txt
       
-      # Step 4: Run the compiled program
-      - name: Run the test # Executes the compiled C program to perform the tests.
+      # Step 7: Run the test decompress mode
+      - name: Run the test
         run: ./rle_tool --run-test --decompress dataset.txt
- # rle_tool Runs the 'rle_tool' executable, which performs its logic and outputs the results.
 
-      # Step 5: Check for test failures
+
+      # Step 8: Check for test failures
       - name: Check test result # Fail the job if the test results are not as expected.
         if: failure() # This step runs only if the previous step (Run the test) fails.
         run: exit 1 # Explicitly fails the job by exiting with a non-zero status code.
